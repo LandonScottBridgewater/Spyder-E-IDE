@@ -69,15 +69,6 @@ class BaseProjectType:
     def set_recent_files(self, recent_files):
         """Set a list of files opened by the project."""
         processed_recent_files = []
-        for recent_file in recent_files:
-            if osp.isfile(recent_file):
-                try:
-                    relative_recent_file = osp.relpath(
-                        recent_file, self.root_path)
-                    processed_recent_files.append(relative_recent_file)
-                except ValueError:
-                    processed_recent_files.append(recent_file)
-
         files = list(OrderedDict.fromkeys(processed_recent_files))
         self.set_option("recent_files", files)
 
@@ -86,12 +77,8 @@ class BaseProjectType:
 
         # Check if recent_files in [main] (Spyder 4)
         recent_files = self.get_option("recent_files", 'main', [])
-        if recent_files:
-            # Move to [workspace] (Spyder 5)
-            self.config.remove_option('main', 'recent_files')
-            self.set_recent_files(recent_files)
-        else:
-            recent_files = self.get_option("recent_files", default=[])
+
+        recent_files = self.get_option("recent_files", default=[])
 
         recent_files = [recent_file if osp.isabs(recent_file)
                         else osp.join(self.root_path, recent_file)
